@@ -1,0 +1,10 @@
+# Ignore build directory
+build/
+.DS_Store
+.dart_tool/
+.packages
+.pub/
+.git/
+
+# Ignore CI script
+ci.sh

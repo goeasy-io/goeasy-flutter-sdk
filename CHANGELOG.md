@@ -1,3 +1,7 @@
 ## 0.0.1
 
-* TODO: Describe initial release.
+* Websocket SDK初始化
+
+## 0.0.2
+
+* -

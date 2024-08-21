@@ -118,7 +118,6 @@ class GoEasy {
         case 'onMessage':
           final Map<String, dynamic> argumentsMap = Map<String, dynamic>.from(call.arguments as Map);
           final message = PubSubMessage.fromMap(argumentsMap);
-          print('sdk: onMessage message: ${message}');
           var messageOption = _channelMessageMap[message.channel];
           messageOption?.onMessage.call(message);
           break;
@@ -144,7 +143,6 @@ class GoEasy {
           break;
         case 'onSuccess':
           final Map<String, dynamic> argumentsMap = Map<String, dynamic>.from(call.arguments as Map);
-          print('sdk: onSuccess+++++ map: ${argumentsMap}');
           if (options is GoEasyEventListener) {
             final result = GResult.fromMap(argumentsMap);
             options.onSuccess.call(result);
@@ -165,7 +163,6 @@ class GoEasy {
                   members: membersList,
                 )
             );
-            print('sdk: HereNowResponse+++++ hereNowResponse: ${hereNowResponse}');
             options.onSuccess.call(hereNowResponse);
 
           } else if (options is HistoryOptions) {
@@ -181,7 +178,6 @@ class GoEasy {
 
             final historyContent = HistoryContent(messages: messageList);
             final result = HistoryResponse(code: code, content: historyContent);
-            print('sdk: onSuccess+++++ HereNowResponse: ${result}');
             options.onSuccess.call(result);
 
           } else {
@@ -190,9 +186,7 @@ class GoEasy {
           break;
         case 'onFailed':
           final Map<String, dynamic> argumentsMap = Map<String, dynamic>.from(call.arguments as Map);
-          print('sdk: onFailed+++++: ${argumentsMap}');
           final result = GResult.fromMap(argumentsMap);
-          print('sdk: onFailed+++++: ${result}');
           options?.onFailed.call(result);
           break;
         default:

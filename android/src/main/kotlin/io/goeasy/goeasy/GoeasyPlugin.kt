@@ -5,7 +5,6 @@ import android.R.attr.data
 import android.content.Context
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
@@ -47,7 +46,6 @@ class GoeasyPlugin: FlutterPlugin, MethodCallHandler {
   }
 
   override fun onMethodCall(call: MethodCall, result: Result) {
-    Log.d(TAG, "onMethodCall: ${call.method}");
     when (call.method) {
       "init" -> {
         val host = call.argument<String>("host")
@@ -63,7 +61,6 @@ class GoeasyPlugin: FlutterPlugin, MethodCallHandler {
         val id = call.argument<String>("id") as String?
         val data = call.argument<Map<String,Any>>("data") as Map<String,Any>?
         val otp = call.argument<String>("otp") as String?
-        Log.i(TAG, "kt: connect -- id-${id} data-${data} otp-${otp}")
         val connectOptions = ConnectOptions().apply {
           if (id != null) {
             this.id = id
@@ -77,16 +74,12 @@ class GoeasyPlugin: FlutterPlugin, MethodCallHandler {
         }
         GoEasy.connect(connectOptions, object : ConnectEventListener() {
           override fun onSuccess(data: GResult<*>) {
-            Log.i(TAG, "kt: connect onSuccess")
             emitEvent("connect.onSuccess", resultToMap(data))
           }
           override fun onFailed(error: GResult<*>) {
-            Log.i(TAG, "kt: Failed to connect GoEasy, code: ${error.code}, error: ${error.data}")
             emitEvent("connect.onFailed", resultToMap(error))
-
           }
           override fun onProgress(attempts: Int) {
-            Log.i(TAG, "kt: onProgress attempts: $attempts")
             emitEvent("connect.onProgress", attempts)
           }
         })
@@ -95,11 +88,9 @@ class GoeasyPlugin: FlutterPlugin, MethodCallHandler {
       "disconnect" -> {
         GoEasy.disconnect(object : GoEasyEventListener() {
           override fun onSuccess(data: GResult<*>) {
-            Log.i(TAG, "kt: disconnect onSuccess")
             emitEvent("disconnect.onSuccess", resultToMap(data))
           }
           override fun onFailed(error: GResult<*>) {
-            Log.i(TAG, "kt: Failed to disconnect GoEasy, code: ${error.code}, error: ${error.data}")
             emitEvent("disconnect.onFailed", resultToMap(error))
           }
         })
@@ -108,25 +99,20 @@ class GoeasyPlugin: FlutterPlugin, MethodCallHandler {
       "subscribe" -> {
         val channel = call.argument<String>("channel") as String
         val presence = call.argument<Map<String,Boolean>>("presence") as Map<String, Any>
-        Log.i(TAG, "kt: subscribe -- ${channel} ${presence}")
         val subscribeOptions = SubscribeOptions(
           channel = channel,
           presence = presence,
           onMessage = { message:PubSubMessage ->
-            Log.i(TAG, "kt: onMessage---$message")
             val map = HashMap<String, Any>()
             map.put("channel", message.channel)
             map.put("content", message.content)
             map.put("time", message.time)
-            Log.i(TAG, "kt: onMessage---map: $map")
             emitEvent("subscribe.onMessage", map)
           },
           onSuccess = {
-            Log.i(TAG, "kt: subscribe onSuccess")
             emitEvent("subscribe.onSuccess",HashMap<String, Any>())
           },
           onFailed = { error:GResult<*> ->
-            Log.i(TAG, "kt: subscribe onFailed, code: ${error.code}, error: ${error.data}")
             emitEvent("subscribe.onFailed", resultToMap(error))
           }
         )
@@ -138,11 +124,9 @@ class GoeasyPlugin: FlutterPlugin, MethodCallHandler {
         val unSubscribeOptions = UnSubscribeOptions(
           channel = channel,
           onSuccess = {
-            Log.i(TAG, "kt: unsubscribe onSuccess")
             emitEvent("unsubscribe.onSuccess",HashMap<String, Any>())
           },
           onFailed = { error:GResult<*> ->
-            Log.i(TAG, "kt: unsubscribe onFailed, code: ${error.code}, error: ${error.data}")
             emitEvent("unsubscribe.onFailed", resultToMap(error))
           }
         )
@@ -154,12 +138,9 @@ class GoeasyPlugin: FlutterPlugin, MethodCallHandler {
         val subscribePresenceOptions = SubscribePresenceOptions(
           channel = channel,
           onPresence = { event: PresenceEvent ->
-            Log.i(TAG, "kt: onPresence $event")
             val memberMap = convertMemberToMap(event.member)
-            Log.i(TAG, "kt: memberMap ${memberMap}")
 
             val membersListMap = event.members.map { member ->
-              Log.i(TAG, "kt: onPresence member: $member")
               convertMemberToMap(member)
             }
 
@@ -169,15 +150,12 @@ class GoeasyPlugin: FlutterPlugin, MethodCallHandler {
             map.put("amount", event.amount)
             map.put("member",memberMap)
             map.put("members", membersListMap)
-            Log.i(TAG, "kt: onPresence map: $map")
             emitEvent("subscribePresence.onPresence",map)
           },
           onSuccess = {
-            Log.i(TAG, "kt: subscribePresence onSuccess")
             emitEvent("subscribePresence.onSuccess",HashMap<String, Any>())
           },
           onFailed = { error:GResult<*> ->
-            Log.e(TAG, "kt: subscribePresence onFailed, code: ${error.code}, error: ${error.data}")
             emitEvent("subscribePresence.onFailed", resultToMap(error))
           }
         )
@@ -189,11 +167,9 @@ class GoeasyPlugin: FlutterPlugin, MethodCallHandler {
         val unSubscribePresenceOptions = UnSubscribePresenceOptions(
           channel = channel,
           onSuccess = {
-            Log.i(TAG, "kt: unSubscribePresence onSuccess")
             emitEvent("unSubscribePresence.onSuccess",HashMap<String, Any>())
           },
           onFailed = { error:GResult<*> ->
-            Log.e(TAG, "kt: unSubscribePresence onFailed, code: ${error.code}, error: ${error.data}")
             emitEvent("unSubscribePresence.onFailed", resultToMap(error))
           }
         )
@@ -207,7 +183,6 @@ class GoeasyPlugin: FlutterPlugin, MethodCallHandler {
           channel = channel,
           limit = limit,
           onSuccess = { data: HereNowResponse ->
-            Log.i(TAG, "kt: hereNow onSuccess $data")
             val response = data.content;
             val membersListMap = response.members.map { member ->
               convertMemberToMap(member)
@@ -222,11 +197,9 @@ class GoeasyPlugin: FlutterPlugin, MethodCallHandler {
             map.put("code", data.code)
             map.put("content", contentMap)
 
-            Log.i(TAG, "kt: hereNow onSuccess map: $map")
             emitEvent("hereNow.onSuccess",map)
           },
           onFailed = { error:GResult<*> ->
-            Log.e(TAG, "kt: hereNow onFailed, code: ${error.code}, error: ${error.data}")
             emitEvent("hereNow.onFailed", resultToMap(error))
           }
         )
@@ -240,7 +213,6 @@ class GoeasyPlugin: FlutterPlugin, MethodCallHandler {
           channel = channel,
           limit = limit,
           onSuccess = { data: HistoryResponse ->
-            Log.i(TAG, "kt: history onSuccess $data")
             val map = HashMap<String, Any>()
             val contentMap = HashMap<String, Any>()
             val messagesList = data.content.messages.map { message ->
@@ -253,12 +225,10 @@ class GoeasyPlugin: FlutterPlugin, MethodCallHandler {
 
             map.put("code",data.code)
             map.put("content",contentMap)
-            Log.i(TAG, "kt: history onSuccess, map: ${map}")
 
             emitEvent("history.onSuccess",map)
           },
           onFailed = { error:GResult<*> ->
-            Log.e(TAG, "kt: history onFailed, code: ${error.code}, error: ${error.data}")
             emitEvent("history.onFailed", resultToMap(error))
           }
         )
@@ -269,15 +239,12 @@ class GoeasyPlugin: FlutterPlugin, MethodCallHandler {
         val channel = call.argument<String>("channel") as String
         val message = call.argument<String>("message") as String
         val qos = call.argument<String>("qos") as Int?
-        Log.i(TAG, "kt: publish -- channel-${channel} message-${message} qos-${qos}")
         val options = PublishOptions(channel,message,qos)
         GPubSub.publish(options, object : GoEasyEventListener() {
           override fun onSuccess(data: GResult<*>) {
-            Log.e(TAG, "kt: publish onSuccess, code: ${data.code}, error: ${data.data}")
             emitEvent("publish.onSuccess", resultToMap(data))
           }
           override fun onFailed(error: GResult<*>) {
-            Log.e(TAG, "kt: publish onFailed, code: ${error.code}, error: ${error.data}")
             emitEvent("publish.onFailed", resultToMap(error))
           }
         })

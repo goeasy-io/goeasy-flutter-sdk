@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'dart:async';
 import 'dart:io' show Platform;
 
-import 'package:flutter/services.dart';
 import 'package:goeasy/goeasy.dart';
 import 'package:goeasy/types.dart';
 
@@ -95,7 +93,7 @@ class _MyAppState extends State<MyApp> {
           _messageFromAndroid = message as String;
         });
       },
-      onSuccess: (_) {
+      onSuccess: (data) {
         print('demo: subscribe onSuccess...');
         setState(() {
           _responseFromAndroid = "subscribe success";
@@ -111,7 +109,7 @@ class _MyAppState extends State<MyApp> {
   void unsubscribe() {
     UnSubscribeOptions options = UnSubscribeOptions(
       channel: "test_channel",
-      onSuccess: (_) {
+      onSuccess: (data) {
         print('demo: unsubscribe onSuccess...');
         setState(() {
           _responseFromAndroid = "unsubscribe success";
@@ -132,7 +130,7 @@ class _MyAppState extends State<MyApp> {
         print('demo: onPresence...Member:${event.member.id}..data:${event.member.data}');
         print('demo: onPresence...Members:${event.members}');
       },
-      onSuccess: (_) {
+      onSuccess: (data) {
         print('demo: subscribePresence onSuccess...');
         setState(() {
           _responseFromAndroid = "subscribePresence success";
@@ -148,7 +146,7 @@ class _MyAppState extends State<MyApp> {
   void unSubscribePresence() {
     UnSubscribePresenceOptions options = UnSubscribePresenceOptions(
       channel: "test_channel",
-      onSuccess: (_) {
+      onSuccess: (data) {
         print('demo: unSubscribePresence onSuccess...');
         setState(() {
           _responseFromAndroid = "unSubscribePresence success";
@@ -249,8 +247,8 @@ class _MyAppState extends State<MyApp> {
               ),
               const SizedBox(height: 20),
               Wrap(
-                spacing: 10.0, // 设置按钮之间的间距
-                runSpacing: 10.0, // 设置行之间的间距
+                spacing: 10.0,
+                runSpacing: 10.0,
                 children: <Widget>[
                   ElevatedButton(
                     onPressed: () => connect(),

@@ -1,9 +1,7 @@
 name: Publish to pub.dev
 
 on:
-  push:
-    tags:
-    - 'v[0-9]+.[0-9]+.[0-9]+*' # tag-pattern on pub.dev: 'v{{version}}'
+  workflow_dispatch:
 
 jobs:
   publish:
@@ -24,6 +22,9 @@ jobs:
 
       - name: Install dependencies
         run: flutter pub get
+
+      - name: Configure pub.dev token
+        run: echo "PUB_DEV_TOKEN=${{ secrets.PUB_DEV_TOKEN }}" > ~/.pub-cache/credentials.json
 
       - name: Publish to pub.dev
         run: flutter pub publish --server=https://pub.dartlang.org -f

@@ -1,23 +1,9 @@
 name: Publish to pub.dev
 
 on:
-  workflow_dispatch
-
-# jobs:
-#   publish:
-#     permissions:
-#       id-token: write
-#     runs-on: ubuntu-latest
-#     environment: pub.dev
-#     steps:
-#       - name: 'Checkout'
-#         uses: actions/checkout@main
-        
-#       - name: '>> Dart package <<'
-#         uses: k-paxian/dart-package-publisher@master
-#         with:
-#           accessToken: ${{ secrets.OAUTH_ACCESS_TOKEN }}
-#           refreshToken: ${{ secrets.OAUTH_REFRESH_TOKEN }}
+  push:
+    tags:
+    - 'v[0-9]+.[0-9]+.[0-9]+*' # tag-pattern on pub.dev: 'v{{version}}'
 
 jobs:
   publish:
@@ -29,6 +15,8 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - uses: dart-lang/setup-dart@0a8a0fc875eb934c15d08629302413c671d3f672
+
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
@@ -38,4 +26,4 @@ jobs:
         run: flutter pub get
 
       - name: Publish to pub.dev
-        run: flutter pub publish --server=https://pub.dartlang.org -f
+        run: flutter pub publish -f

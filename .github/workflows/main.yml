@@ -26,4 +26,7 @@ jobs:
       - name: Run ci.sh
         run: ./ci.sh ${{ github.event.inputs.type }}
 
+      - name: Wait for GitHub to register the tag
+        run: sleep 10
+
 

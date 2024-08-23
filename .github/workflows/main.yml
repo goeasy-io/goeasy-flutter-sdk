@@ -26,3 +26,17 @@ jobs:
       - name: Run ci.sh
         run: ./ci.sh ${{ github.event.inputs.type }}
 
+      - name: Get new version from pubspec.yaml
+        id: get_version
+        run: |
+          NEW_VERSION=$(grep 'version:' pubspec.yaml | awk '{print $2}')
+          echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
+
+      - name: Verify the new version
+        run: echo "New version is ${{ env.NEW_VERSION }}"
+
+      - name: Create and push tag
+        run: |
+          git tag -a "v${{ env.NEW_VERSION }}" -m "Release version ${{ env.NEW_VERSION }}"
+          git push origin "v${{ env.NEW_VERSION }}"
+

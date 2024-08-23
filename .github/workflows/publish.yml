@@ -23,14 +23,14 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set execute permissions for ci.sh
-        run: chmod +x ./ci.sh
-
-      - name: Run ci.sh
-        run: ./ci.sh ${{ github.event.inputs.type }}
-
-      - name: Wait for GitHub to register the tag
-        run: sleep 10
+#      - name: Set execute permissions for ci.sh
+#        run: chmod +x ./ci.sh
+#
+#      - name: Run ci.sh
+#        run: ./ci.sh ${{ github.event.inputs.type }}
+#
+#      - name: Wait for GitHub to register the tag
+#        run: sleep 10
 
       - uses: dart-lang/setup-dart@0a8a0fc875eb934c15d08629302413c671d3f672
 

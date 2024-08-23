@@ -53,7 +53,7 @@ git config user.email "support@goeasy.io"
 git add .
 git commit -m "ci: bump version to $NEW_VERSION and update changelog"
 git push origin HEAD
-# git tag -a "v$NEW_VERSION" -m "Release version $NEW_VERSION"
-# git push origin "v$NEW_VERSION"
+git tag -a "v$NEW_VERSION" -m "Release version $NEW_VERSION"
+git push origin "v$NEW_VERSION"
 
 echo "Version updated to $NEW_VERSION and changelog updated."

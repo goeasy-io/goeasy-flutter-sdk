@@ -1,36 +1,55 @@
 #!/bin/bash
-set -o errexit
-env=$1
 
-update_version() {
-  version=$1
-  echo "Updating version to $version"
-  sed -i '' -e "s/^version: .*/version: $version/" pubspec.yaml
-}
+TYPE=$1
 
-current_version=$(grep '^version: ' pubspec.yaml | sed 's/version: //')
+# 当前版本号
+CURRENT_VERSION=$(grep 'version:' pubspec.yaml | awk '{print $2}')
 
-if [ "$env" = "release" ]; then
-  echo "Start deploy release"
+BASE_VERSION=$(echo $CURRENT_VERSION | sed -E 's/([0-9]+\.[0-9]+\.[0-9]+).*/\1/')
 
-  # 构建并发布到 pub.dev
-  flutter pub publish --server=https://pub.dartlang.org
+NEW_VERSION=""
 
-  IFS='.' read -r -a version_parts <<< "$current_version"
-  patch_version=$((version_parts[2] + 1))
-  next_version="${version_parts[0]}.${version_parts[1]}.$patch_version"
+# 如果当前版本号带有 beta 标签
+if echo $CURRENT_VERSION | grep -q 'beta'; then
+    BETA_VERSION=$(echo $CURRENT_VERSION | sed -E 's/.*-([0-9]+)\.beta/\1/')
 
-  update_version "$next_version"
-
-  git add pubspec.yaml
-  git commit -m "$current_version is Released"
-  
-elif [ "$env" = "snapshot" ]; then
-  echo "Start deploy snapshot"
-
-  # 构建并进行 dry-run 发布测试
-  flutter pub publish --dry-run
-
+    if [ "$TYPE" == "release" ]; then
+        NEW_VERSION=$(echo $BASE_VERSION | awk -F. '{print $1"."$2"."$3+1}')
+    elif [ "$TYPE" == "snapshot" ]; then
+        NEW_VERSION="$BASE_VERSION-$((BETA_VERSION+1)).beta"
+    fi
 else
-  echo "Action not defined."
+    if [ "$TYPE" == "release" ]; then
+        NEW_VERSION=$(echo $BASE_VERSION | awk -F. '{print $1"."$2"."$3+1}')
+    elif [ "$TYPE" == "snapshot" ]; then
+        NEW_VERSION="$BASE_VERSION-1.beta"
+    fi
 fi
+
+# 更新 pubspec.yaml 中的版本号
+sed -i "s/version: .*/version: $NEW_VERSION/" pubspec.yaml
+
+echo "type:$TYPE BASE_VERSION: $BASE_VERSION NEW_VERSION: $NEW_VERSION"
+
+
+# 更新 changelog
+CHANGELOG_FILE="CHANGELOG.md"
+CURRENT_DATE=$(date +"%Y-%m-%d")
+
+echo "## $NEW_VERSION - $CURRENT_DATE" > temp_changelog.md
+echo "" >> temp_changelog.md
+echo "### Added" >> temp_changelog.md
+echo "" >> temp_changelog.md
+echo "- " >> temp_changelog.md  # 默认内容为空，可以在这里添加实际的更新内容
+
+# 将新内容添加到 changelog 文件的顶部
+cat temp_changelog.md $CHANGELOG_FILE > updated_changelog.md
+mv updated_changelog.md $CHANGELOG_FILE
+rm temp_changelog.md
+
+# 提交更改并打tag
+git add .
+git commit -m "ci: bump version to $NEW_VERSION and update changelog"
+git tag -a "v$NEW_VERSION" -m "Release version $NEW_VERSION"
+
+echo "Version updated to $NEW_VERSION and changelog updated."

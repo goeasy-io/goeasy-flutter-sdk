@@ -2,6 +2,15 @@ name: Version Update and Tag
 
 on:
   workflow_dispatch: # 允许手动触发
+    inputs:
+      type:
+        description: 'Specify the release type (release or snapshot)'
+        required: true
+        default: 'snapshot'
+        type: choice
+        options:
+          - release
+          - snapshot
 
 jobs:
   version-update:
@@ -12,7 +21,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Run ci.sh
-        run: ./ci.sh
+        run: ./ci.sh ${{ github.event.inputs.type }}
 
       - name: Push tag
         run: |

@@ -1,4 +1,4 @@
-name: Version Update and Tag
+name: Version Update
 
 on:
   workflow_dispatch: # 允许手动触发
@@ -19,6 +19,9 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Set execute permissions for ci.sh
+        run: chmod +x ./ci.sh
 
       - name: Run ci.sh
         run: ./ci.sh ${{ github.event.inputs.type }}

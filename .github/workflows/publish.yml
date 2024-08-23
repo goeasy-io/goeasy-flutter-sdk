@@ -32,10 +32,6 @@ jobs:
       - name: Wait for GitHub to register the tag
         run: sleep 10
 
-      - name: Debug Reference Type
-        run:
-          echo "Ref Type: ${{ github.ref_type }}"
-
       - uses: dart-lang/setup-dart@0a8a0fc875eb934c15d08629302413c671d3f672
 
       - name: Setup Flutter

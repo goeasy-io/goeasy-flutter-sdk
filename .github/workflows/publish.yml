@@ -26,8 +26,5 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
-      - name: Show pub.dev credentials
-        run: cat ~/.pub-cache/credentials.json
-
       - name: Publish to pub.dev
         run: flutter pub publish --server=https://pub.dartlang.org -f

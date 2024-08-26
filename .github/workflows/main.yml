@@ -24,9 +24,16 @@ jobs:
         run: chmod +x ./ci.sh
 
       - name: Run ci.sh
-        run: ./ci.sh ${{ github.event.inputs.type }}
+        run: |
+          ./ci.sh ${{ github.event.inputs.type }}
+          echo "TAG_VERSION=$(git describe --tags --abbrev=0)" >> $GITHUB_ENV
 
-      - name: Wait for GitHub to register the tag
-        run: sleep 10
-
+      - name: Trigger Publish to pub.dev pipeline
+        if: success()
+        run: |
+          curl -X POST \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            https://api.github.com/repos/${{ github.repository }}/actions/workflows/publish.yml/dispatches \
+            -d '{"ref":"${TAG_VERSION}"}'
 

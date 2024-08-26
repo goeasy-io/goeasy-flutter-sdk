@@ -1,16 +1,9 @@
 name: Publish to pub.dev
 
 on:
-  workflow_dispatch: # 允许手动触发
-    inputs:
-      type:
-        description: 'Specify the release type (release or snapshot)'
-        required: true
-        default: 'snapshot'
-        type: choice
-        options:
-          - release
-          - snapshot
+  push:
+    tags:
+      - 'v*'
 
 jobs:
   publish:
@@ -22,15 +15,6 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-
-#      - name: Set execute permissions for ci.sh
-#        run: chmod +x ./ci.sh
-#
-#      - name: Run ci.sh
-#        run: ./ci.sh ${{ github.event.inputs.type }}
-#
-#      - name: Wait for GitHub to register the tag
-#        run: sleep 10
 
       - uses: dart-lang/setup-dart@0a8a0fc875eb934c15d08629302413c671d3f672
 

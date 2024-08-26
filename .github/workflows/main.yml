@@ -26,7 +26,10 @@ jobs:
       - name: Run ci.sh
         run: |
           ./ci.sh ${{ github.event.inputs.type }}
-          echo "TAG_VERSION=$(git describe --tags --abbrev=0)" >> $GITHUB_ENV
+          # 获取生成的最新 tag 版本
+          TAG_VERSION=$(git describe --tags --abbrev=0)
+          echo "TAG_VERSION=${TAG_VERSION}" >> $GITHUB_ENV
+          echo "Latest tag version: ${TAG_VERSION}"
 
       - name: Trigger Publish to pub.dev pipeline
         if: success()

@@ -1,6 +1,6 @@
 name: goeasy
 description: A Flutter plugin for GoEasy SDK.
-version: 0.0.3-7.beta
+version: 0.0.3-8.beta
 homepage: https://goeasy.io
 
 environment:

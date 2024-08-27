@@ -31,7 +31,6 @@ sed -i "s/version: .*/version: $NEW_VERSION/" pubspec.yaml
 
 echo "type:$TYPE BASE_VERSION: $BASE_VERSION NEW_VERSION: $NEW_VERSION"
 
-
 # 更新 changelog
 CHANGELOG_FILE="CHANGELOG.md"
 CURRENT_DATE=$(date +"%Y-%m-%d")
@@ -55,5 +54,8 @@ git commit -m "ci: bump version to $NEW_VERSION and update changelog"
 git push origin HEAD
 git tag -a "v$NEW_VERSION" -m "Release version $NEW_VERSION"
 git push origin "v$NEW_VERSION"
+
+# 将标签传递给GitHub Actions
+echo "TAG_VERSION=v$NEW_VERSION" >> $GITHUB_ENV
 
 echo "Version updated to $NEW_VERSION and changelog updated."
